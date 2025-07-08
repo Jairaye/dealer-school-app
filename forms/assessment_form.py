@@ -1,11 +1,7 @@
-# forms/assessment_form.py
-
 import streamlit as st
 from datetime import date
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
-import os
+from utils.gspread_loader import load_sheet_client  # ✅ Modular credential loader
 
 SKILL_AREAS = [
     "Deck Setup",
@@ -24,22 +20,7 @@ RATINGS = ["Below Standards", "Met Standards", "Exceeded Standards"]
 def render():
     st.header("📋 Student Assessment")
 
-    # Connect to Google Sheets
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    import json
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds_path = os.path.expanduser("~/.gcp_keys/dealer_school.json")
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
-
-
-
-
-
-
-
-    client = gspread.authorize(creds)
-
-    # Get student list from Enrollment sheet
+    client = load_sheet_client()
     sheet_enroll = client.open("Dealer_academy_records").worksheet("Enrollment")
     df_enroll = pd.DataFrame(sheet_enroll.get_all_records())
 
@@ -76,14 +57,12 @@ def render():
         st.markdown("---")
 
     if st.button("Submit Assessment"):
-        # Prepare data row
         row = [student_id, str(init_date), str(final_date)]
         for skill in SKILL_AREAS:
             row.append(init_scores[skill])
             row.append(final_scores[skill])
         row.append(str(date.today()))
 
-        # Write to Assessments sheet
         assess_sheet = client.open("Dealer_academy_records").worksheet("Assessments")
 
         headers = ["Student ID", "Initial Date", "Final Date"]

@@ -1,12 +1,8 @@
-# forms/enrollment_form.py
-
 import streamlit as st
 from datetime import date
 import pandas as pd
 import random
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-import os
+from utils.gspread_loader import load_sheet_client  # 🌟 Modular credential loader
 
 def generate_student_id(existing_ids):
     year = str(date.today().year)[-2:]  # '25'
@@ -22,25 +18,12 @@ def generate_student_id(existing_ids):
 def render():
     st.header("📝 Enrollment Form")
 
-    # Connect to Google Sheets
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    import json
-    cscope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds_path = os.path.expanduser("~/.gcp_keys/dealer_school.json")
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
-
-
-
-
-
-    client = gspread.authorize(creds)
-
+    client = load_sheet_client()  # 🔌 Single call to get Sheets access
     sheet = client.open("Dealer_academy_records").worksheet("Enrollment")
 
     existing_data = sheet.get_all_records()
     existing_ids = {row.get("Student ID") for row in existing_data if "Student ID" in row}
 
-    # --- Form ---
     with st.form("enrollment_form"):
         st.subheader("Student Info")
         col1, col2 = st.columns(2)
@@ -53,7 +36,6 @@ def render():
         zip_code = col5.text_input("Zip Code")
 
         phone = st.text_input("Preferred Phone Number")
-
         email = st.text_input("Email Address")
 
         st.markdown("**Course Name:** Professional Poker Dealing")
@@ -67,7 +49,7 @@ def render():
         ec_phone = st.text_input("Emergency Phone")
         ec_relation = st.text_input("Relationship to Student")
 
-        submitted = st.form_submit_button("Submit")  # ✅ Must be inside the form
+        submitted = st.form_submit_button("Submit")
 
     if submitted:
         student_id = generate_student_id(existing_ids)
@@ -86,7 +68,6 @@ def render():
             "Submitted On"
         ]
 
-        # If sheet is empty, write headers
         if not existing_data:
             sheet.append_row(headers)
 

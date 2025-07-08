@@ -1,30 +1,13 @@
-# forms/payment_tracker.py
-
 import streamlit as st
-import gspread
 import pandas as pd
-from oauth2client.service_account import ServiceAccountCredentials
-import os
+from utils.gspread_loader import load_sheet_client  # ✅ Credential shortcut
 
 def render():
     st.header("📌 Track Payment Status")
 
-    # Connect to Google Sheets
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    import json
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds_path = os.path.expanduser("~/.gcp_keys/dealer_school.json")
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(st.secrets["gcp_service_account"], scope)
-
-
-
-
-
-    client = gspread.authorize(creds)
-
+    client = load_sheet_client()
     sheet = client.open("Dealer_academy_records").worksheet("Payment_Tracking")
 
-    # Load payment tracking data
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
 
@@ -32,7 +15,6 @@ def render():
         st.info("No payment data found.")
         return
 
-    # Search box
     st.subheader("🔍 Search")
     search_term = st.text_input("Enter Student ID, Last Name, or First Name").strip().lower()
 
@@ -46,7 +28,6 @@ def render():
         st.warning("No matching records found.")
         return
 
-    # Group by borrower
     borrowers = df["Borrower"].unique()
 
     for borrower in borrowers:
@@ -67,16 +48,13 @@ def render():
 
                 with col1:
                     st.markdown(f"**Due:** {due}")
-
                 with col2:
                     st.markdown(f"**Amount:** ${amount:.2f}")
-
                 with col3:
                     paid = st.checkbox("Paid", value=(status == "Paid"), key=f"{borrower}_{i}")
                 with col4:
                     new_receipt = st.text_input("Receipt #", value=receipt, key=f"{borrower}_{i}_receipt")
 
-                # Rule: must have receipt # to mark as paid
                 new_status = "Paid" if paid and new_receipt.strip() else "Unpaid"
 
                 if paid and not new_receipt.strip():
@@ -97,4 +75,3 @@ def render():
                         sheet.update_cell(row_num, 4, new_status)
                         sheet.update_cell(row_num, 5, new_receipt)
                     st.success("Updates saved.")
-
