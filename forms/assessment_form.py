@@ -5,6 +5,7 @@ from datetime import date
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
+import os
 
 SKILL_AREAS = [
     "Deck Setup",
@@ -26,7 +27,14 @@ def render():
     # Connect to Google Sheets
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     import json
+    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+    creds_path = os.path.expanduser("~/.gcp_keys/dealer_school.json")
     creds = ServiceAccountCredentials.from_json_keyfile_dict(json.loads(st.secrets["gcp_service_account"]), scope)
+
+
+
+
+
 
     client = gspread.authorize(creds)
 
