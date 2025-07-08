@@ -12,6 +12,7 @@ def load_sheet_client():
 
     if "gcp_service_account" in st.secrets:
         creds_dict = dict(st.secrets["gcp_service_account"])  # ✅ Already a dictionary
+        creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n").strip()    
     else:
         creds_path = os.path.expanduser("~/.gcp_keys/dealer_school.json")
         with open(creds_path) as f:
