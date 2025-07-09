@@ -21,7 +21,7 @@ def load_sheet_client():
             print(f"{i:02d}: {len(line)} | {line}")
     else:
         # ✅ Local mode: use .json file
-        creds_path = os.path.expanduser("~/.gcp_keys/dealer_school.json")
+        creds_path = os.path.expanduser("C:\Users\joshu\.gcp_keys\dealer_school.json")
         with open(creds_path) as f:
             creds_dict = json.load(f)
 
