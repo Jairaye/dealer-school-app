@@ -11,17 +11,17 @@ def load_sheet_client():
     ]
 
     if "gcp_service_account" in st.secrets:
-        # ✅ Cloud mode: use Streamlit secrets
+        # ✅ Cloud mode
         creds_dict = dict(st.secrets["gcp_service_account"])
         creds_dict["private_key"] = creds_dict["private_key"].replace("\\n", "\n").strip()
 
-        # 🧪 Optional: Diagnostic output to logs (remove once working)
+        # 👇 Diagnostic block (runs only in cloud)
         print("⏎ Key Preview:")
         for i, line in enumerate(creds_dict["private_key"].split("\n")):
             print(f"{i:02d}: {len(line)} | {line}")
     else:
-        # ✅ Local mode: use .json file
-        creds_path = os.path.expanduser("C:\Users\joshu\.gcp_keys\dealer_school.json")
+        # ✅ Local dev mode
+        creds_path = "C:/Users/joshu/.gcp_keys/dealer_school.json"  # Your actual file path
         with open(creds_path) as f:
             creds_dict = json.load(f)
 
