@@ -10,7 +10,7 @@ def render():
         st.markdown("<h2 style='text-align: center;'>🔒 Admin Login</h2>", unsafe_allow_html=True)
         pwd = st.text_input("Enter password", type="password")
         if st.button("Login"):
-            if pwd == st.secrets["auth_password"]:
+            if pwd == st.secrets.get("auth", {}).get("auth_password", ""):
                 st.session_state["authenticated"] = True
                 st.success("Access granted ✅")
                 st.rerun()

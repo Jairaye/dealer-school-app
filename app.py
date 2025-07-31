@@ -1,5 +1,6 @@
 import streamlit as st
 st.set_page_config(page_title="Dealer Academy", layout="wide")  # ✅ KEEP THIS ONE
+st.write("Secrets available:", dict(st.secrets))
 
 from forms import title_page, enrollment_form, payment_form, payment_tracker, assessment_form
 
