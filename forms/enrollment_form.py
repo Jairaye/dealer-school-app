@@ -43,6 +43,10 @@ def render():
         st.markdown("**Tuition Cost:** $1,495.00")
         start_date = st.date_input("Start Date", date.today())
 
+                # --- Tuition Mode ---
+        st.subheader("Tuition Payment Mode")
+        tuition_mode = st.radio("Select mode:", ["Paid in Full", "Agreement Plan", "Undecided"])
+
         st.subheader("Emergency Contact")
         ec_first = st.text_input("Emergency First Name")
         ec_last = st.text_input("Emergency Last Name")
@@ -53,6 +57,35 @@ def render():
 
     if submitted:
         student_id = generate_student_id(existing_ids)
+
+            # Generate student ID and construct enrollment row
+    student_id = generate_student_id(existing_ids)
+
+    enrollment_row = [
+        student_id, first, last, street, state, zip_code,
+        phone, email, start_date.strftime("%Y-%m-%d"),
+        ec_first, ec_last, ec_phone, ec_relation,
+        date.today().strftime("%Y-%m-%d"), tuition_mode  # 👈 Include new field
+    ]
+
+    enrollment_headers = [
+        "Student ID", "First Name", "Last Name", "Street Address", "State", "Zip Code",
+        "Phone", "Email", "Start Date",
+        "Emergency First", "Emergency Last", "Emergency Phone", "Emergency Relationship",
+        "Submitted On", "Tuition Mode"
+    ]
+
+    if not existing_data:
+        sheet.append_row(enrollment_headers)
+    sheet.append_row(enrollment_row)
+
+    # --- Auto-log Paid in Full payments ---
+    if tuition_mode == "Paid in Full":
+        tracker = client.open("Dealer_academy_records").worksheet("Payment Tracking")
+        payment_row = [
+            f"{first} {last}", start_date.strftime("%Y-%m-%d"), "$1495.00", "Paid", "—", date.today().strftime("%Y-%m-%d")
+        ]
+        tracker.append_row(payment_row)
 
         row = [
             student_id, first, last, street, state, zip_code,
